@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper   
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+
+<mapper namespace = "cn.bagebeyond.oa.sysmanage.mapper.UserMapper"> 
+	<sql id="all_user_columns">
+		user_id,
+		dept_id,
+		login_name,
+		password,
+		user_no,
+		user_name,
+		email,
+		phone,
+		mobile,
+		update_by,
+		update_date,
+		remarks
+	</sql>
+	 
+	 <!-- 将通用的sql查询条件抽取出来，称为sql片段，给不同的方法使用 -->
+	 <sql id="query_user_sql_where">
+	 	<if test="userName != null">
+	 		and user_name like '%${userName}%'
+	 	</if>
+	 	<if test="loginName != null">
+	 		and login_name = #{loginName}
+	 	</if>
+	 	<if test="password != null">
+	 		and password = #{password}
+	 	</if>
+	 </sql>
+	 
+	 <!-- 添加用户信息 -->
+	 <insert id="addUser" parameterType="User">
+	 	<selectKey keyProperty="userId" resultType="long" order="AFTER" >
+               SELECT LAST_INSERT_ID() as userId
+        </selectKey>
+        	  
+		INSERT INTO PM_SYS_USER(DEPT_ID,LOGIN_NAME,PASSWORD,
+   						 USER_NO,USER_NAME,EMAIL,PHONE,MOBILE,
+   		 				UPDATE_BY,UPDATE_DATE,REMARKS)
+		VALUES(#{deptId},#{loginName},#{password},#{userNo},
+				#{userName},#{email},#{phone},#{mobile},
+				#{updateBy},#{updateDate},#{remarks})
+	 </insert>
+	 
+	 <!-- 批量添加用户角色的对应关系 -->
+	 <insert id="addUserRoleBatch" parameterType="UserToRole">
+	 	insert into PM_SYS_USER_ROLE (
+	 		user_id,
+	 		role_id
+	 	) values 
+	 	<foreach collection="list" item="userToRole" index="index" separator=",">
+	 		(#{userToRole.userId},#{userToRole.roleId})
+	 	</foreach>
+	 </insert>
+	 
+	 <select id="getUserList" parameterType="User" resultType="User">
+	 	select 
+	 	<include refid="all_user_columns"></include>
+	 	from pm_sys_user
+	 	<where>
+	 		<include refid="query_user_sql_where"></include>
+	 	</where>
+	 </select>
+	 
+	 <!-- 通过用户id获取拥有区域权限下的用户列表 (超级管理员用来查询的语句)-->
+	 <select id="getUserDtoListByUserIdAdmin" parameterType="user" resultType="userDto">
+		SELECT 
+			A.USER_ID,
+			A.DEPT_ID,
+			A.LOGIN_NAME,
+			A.PASSWORD,
+	   		A.USER_NO,
+	   		A.USER_NAME,
+	   		A.EMAIL,
+	   		A.PHONE,
+	   		A.MOBILE,
+	   		A.UPDATE_BY,
+	   		A.UPDATE_DATE,
+	   		A.REMARKS,
+	   		B.NAME DEPT_NAME 
+   		FROM PM_SYS_USER A ,PM_SYS_DEPT B
+ 		<!--where 标签两个用途:1:添加sql中where关键字 2:判断第一个条件前面不需要AND-->
+		<where>
+			AND A.DEPT_ID = B.ID and A.DEPT_ID in(select b.dept_id from pm_sys_user_role a ,pm_sys_role_dept b where a.role_id = b.role_id and a.user_id = #{userId})
+		 	<if test="userName!=null"> 
+				AND A.USER_NAME LIKE '%${userName}%'
+	 		</if>					
+			<if test="deptId!=null"> 
+				AND A.DEPT_ID= #{deptId}
+			</if>			
+		 </where>	
+	</select> 
+	
+	<!-- 通过用户id获取拥有区域权限下的用户列表 (普通用户用来查询的语句(差别：上面那个可以查询出超级管理员用户，这个则不能))-->
+	 <select id="getUserDtoListByUserId" parameterType="user" resultType="userDto">
+		SELECT 
+			A.USER_ID,
+			A.DEPT_ID,
+			A.LOGIN_NAME,
+			A.PASSWORD,
+	   		A.USER_NO,
+	   		A.USER_NAME,
+	   		A.EMAIL,
+	   		A.PHONE,
+	   		A.MOBILE,
+	   		A.UPDATE_BY,
+	   		A.UPDATE_DATE,
+	   		A.REMARKS,
+	   		B.NAME DEPT_NAME 
+   		FROM PM_SYS_USER A ,PM_SYS_DEPT B
+ 		<!--where 标签两个用途:1:添加sql中where关键字 2:判断第一个条件前面不需要AND-->
+		<where>
+			AND A.DEPT_ID = B.ID and A.DEPT_ID in(select if(b.dept_id=1,NULL,b.dept_id) from pm_sys_user_role a ,pm_sys_role_dept b where a.role_id = b.role_id and a.user_id = #{userId})
+		 	<if test="userName!=null"> 
+				AND A.USER_NAME LIKE '%${userName}%'
+	 		</if>					
+			<if test="deptId!=null"> 
+				AND A.DEPT_ID= #{deptId}
+			</if>			
+		 </where>	
+	</select> 
+	 
+	 <select id="getUserDtoList" parameterType="user" resultType="userDto">
+		SELECT 
+			A.USER_ID,
+			A.DEPT_ID,
+			A.LOGIN_NAME,
+			A.PASSWORD,
+	   		A.USER_NO,
+	   		A.USER_NAME,
+	   		A.EMAIL,
+	   		A.PHONE,
+	   		A.MOBILE,
+	   		A.UPDATE_BY,
+	   		A.UPDATE_DATE,
+	   		A.REMARKS,
+	   		B.NAME DEPT_NAME 
+   		FROM PM_SYS_USER A ,PM_SYS_DEPT B
+ 		<!--where 标签两个用途:1:添加sql中where关键字 2:判断第一个条件前面不需要AND-->
+		<where>
+			AND A.DEPT_ID = B.ID and A.DEPT_ID in(select b.dept_id from pm_sys_user_role a ,pm_sys_role_dept b where a.role_id = b.role_id and a.user_id = #{userId})
+		 	<if test="userName!=null">
+				AND A.USER_NAME LIKE '%${userName}%'
+	 		</if>					
+			<if test="deptId!=null"> 
+				AND A.DEPT_ID= #{deptId}
+			</if>			
+		 </where>	
+	</select> 
+	 
+	 <select id="getUserByLoginName" parameterType="string" resultType="User">
+	 	select
+	 	<include refid="all_user_columns"></include>
+	 	from pm_sys_user where login_name = #{loginName}
+	 </select>
+	 
+	 <select id="getUserById" parameterType="long" resultType="User">
+	 	select
+	 	<include refid="all_user_columns"></include>
+	 	from pm_sys_user where user_id = #{userId}
+	 </select>
+	 
+	 <!-- 删除用户角色对应关系 -->
+	 <delete id="delUserRoleByUserId" parameterType="java.lang.Long">
+	 	DELETE FROM PM_SYS_USER_ROLE WHERE USER_ID = #{userId}
+	 </delete>
+	 
+	 <!-- 删除用户信息 -->
+	 <delete id="delUser" parameterType="java.lang.Long">
+	 	delete from PM_SYS_USER where user_id = #{userId}
+	 </delete>
+	 
+	 <!-- 查询出用户所有角色ID -->
+	 <select id="getUserRoleByUserId" resultType="UserToRole">
+	 	select 
+	 		user_id,
+	 		role_id
+	 	from PM_SYS_USER_ROLE where user_id = #{userId}
+	 </select>
+	 
+	 <!-- 修改用户名密码 -->
+	 <update id="updateUserPassword">
+	 	update pm_sys_user set password = #{1} where user_id = #{0}
+	 </update>
+	 
+	 <!-- 通过id获取用户包装类对象 -->
+	 <select id="getUserInfoById" parameterType="long" resultType="UserDto">
+	 	SELECT 
+		 	A.USER_ID,
+		 	A.DEPT_ID,
+		 	A.LOGIN_NAME,
+		 	A.PASSWORD,
+	   		A.USER_NO,
+	   		A.USER_NAME,
+	   		A.EMAIL,
+	   		A.PHONE,
+	   		A.MOBILE,
+	   		A.UPDATE_BY,
+	   		A.UPDATE_DATE,
+	   		A.REMARKS,
+	   		B.NAME DEPT_NAME,
+	   		DATE_FORMAT(A.LAST_LOGIN_TIME,'%Y-%m-%d %H:%i:%S') LAST_LOGIN_TIME
+   		FROM PM_SYS_USER A ,PM_SYS_DEPT B
+   		WHERE A.USER_ID=#{userId} AND A.DEPT_ID = B.ID	
+	 </select>
+	 
+	 <!-- 更新用户信息 -->
+	 <update id="updateUser" parameterType="User">
+	 	UPDATE PM_SYS_USER  
+		<set> 
+			<if test="deptId != null">
+	            DEPT_ID = #{deptId},
+	        </if>
+	        <if test="loginName != null">
+	            LOGIN_NAME = #{loginName},
+	        </if>   
+	        <if test="userNo != null">
+	            USER_NO = #{userNo},
+	        </if>
+	        <if test="userName != null">
+	            USER_NAME = #{userName},
+	        </if>	
+	        <if test="email != null">
+	            EMAIL = #{email},
+	        </if>
+	        <if test="phone != null">
+	            PHONE = #{phone},
+	        </if>
+	         <if test="mobile != null">
+	            MOBILE = #{mobile},
+	        </if>
+	        <if test="updateBy != null">
+	            UPDATE_BY = #{updateBy},
+	        </if>
+	        <if test="updateDate != null">
+	            UPDATE_DATE = #{updateDate},
+	        </if>
+	        <if test="remarks != null">
+	            REMARKS = #{remarks},
+	        </if>
+		</set>
+		 where user_id = #{userId}
+	 </update>
+	 
+	 <!-- 更新用户最后一次登陆的时间 -->
+	 <update id="updateLastLoginTime" parameterType="long">
+	 	UPDATE PM_SYS_USER SET LAST_LOGIN_TIME = NOW() WHERE USER_ID = #{userId}
+	 </update>
+</mapper>

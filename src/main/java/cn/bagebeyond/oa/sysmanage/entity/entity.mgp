@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackageAnalysis>
+    <Package name="cn.bagebeyond.oa.framework" x="45" y="18"/>
+    <Package name="cn.bagebeyond.oa.framework.interceptor" x="10" y="359">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.framework.servlet" x="26" y="85"/>
+    <Package name="cn.bagebeyond.oa.framework.util" x="44" y="236">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.dto"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.sysmanage" x="619" y="27"/>
+    <Package name="cn.bagebeyond.oa.sysmanage.controller" x="608" y="74">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.service"/>
+        <DependencyLink destination="cn.bagebeyond.oa.framework.util"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.dto"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.vo"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.sysmanage.dto" x="415" y="230">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.sysmanage.entity" x="759" y="424">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.dto"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.sysmanage.mapper" x="780" y="230">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.dto"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.sysmanage.service" x="1152" y="314">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.dto"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.vo"/>
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+    <Package name="cn.bagebeyond.oa.sysmanage.vo" x="1043" y="22">
+        <DependencyLink destination="cn.bagebeyond.oa.sysmanage.entity"/>
+    </Package>
+</PackageAnalysis>

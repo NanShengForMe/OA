@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper   
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+
+<mapper namespace = "cn.bagebeyond.oa.sysmanage.mapper.DictMapper"> 
+	
+	<sql id="all_dict_columns">
+   		 ID,VALUE,LABEL, TYPE ,DESCRIPTION ,SORT ,
+   		 PARENT_ID ,UPDATE_BY, UPDATE_DATE, REMARKS
+  	</sql>
+	
+	<!--将通用的sql查询条件抽取出来,成为sql片段 ,给不同方法应用  -->
+	<sql id="query_dict_sql_where">			
+		<if test="type!=null"> 
+			AND TYPE= #{type}
+		</if>
+		<if test="description!=null"> 
+			AND DESCRIPTION LIKE '%${description}%'
+		</if>		 	
+	</sql>
+	
+	<!-- 查询所有字典类型 -->
+	<select id="getAllDictType" resultType="string">
+		SELECT DISTINCT TYPE  FROM PM_SYS_DICT
+	</select>
+	
+	<!-- 根据条件查询字典列表 -->
+	<select id="getDictList" parameterType="Dict" resultType="Dict">
+		select 
+		<include refid="all_dict_columns"></include>
+		from pm_sys_dict
+		<where>
+			<include refid="query_dict_sql_where"></include>
+		</where>
+	</select>
+	
+	<!-- 根据字典的id查询字典的明细 -->
+	<select id="getDictById" parameterType="long" resultType="Dict">
+		select
+		<include refid="all_dict_columns"></include>
+		from pm_sys_dict where id = #{dictId}
+	</select>
+	
+	<!-- 添加字典信息 -->
+	<insert id="addDict" parameterType="Dict">
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT  LAST_INSERT_ID() as id
+		</selectKey>
+		insert into pm_sys_dict(
+			VALUE,LABEL, TYPE ,DESCRIPTION ,SORT ,
+   		 PARENT_ID ,UPDATE_BY, UPDATE_DATE, REMARKS
+		)VALUES(#{value},#{label},#{type},#{description},#{sort},
+   				#{parentId},#{updateBy},#{updateDate},#{remarks}
+   		 )	
+	</insert>
+	
+	<!-- 修改字典信息 -->
+	<update id="updateDict" parameterType="dict">	
+		UPDATE PM_SYS_DICT  
+			<set> 
+				<if test="value != null">
+		            VALUE = #{value},
+		        </if>
+		        <if test="label != null">
+		            LABEL = #{label},
+		        </if>
+		   
+		        <if test="type != null">
+		            TYPE = #{type},
+		        </if>
+		        <if test="description != null">
+		            DESCRIPTION = #{description},
+		        </if>	
+		        <if test="sort != null">
+		            SORT = #{sort},
+		        </if>
+		        <if test="parentId != null">
+		            PARENT_ID = #{parentId},
+		        </if>
+		        <if test="updateBy != null">
+		            UPDATE_BY = #{updateBy},
+		        </if>
+		        <if test="updateDate != null">
+		            UPDATE_DATE = #{updateDate},
+		        </if>
+		        <if test="remarks != null">
+		            REMARKS = #{remarks},
+		        </if>		 
+			</set>
+			WHERE ID = #{id}
+	</update>
+	
+	<!-- 永久删除字典 -->
+	<!-- 删除字典 -->
+	<delete id="delDict" parameterType="java.lang.Long">
+		DELETE FROM PM_SYS_DICT WHERE ID = #{dictId}
+	</delete>
+	
+	<!-- 逻辑删除 -->
+</mapper>
