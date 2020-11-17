@@ -125,7 +125,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.0.8</version>
+			<version>5.1.47</version>
 			<scope>runtime</scope>
 		</dependency>
 		
@@ -189,5 +189,16 @@
                 </configuration>
     	</plugin>
     </plugins>
+	  <resources>
+		  <resource>
+			  <directory>src/main/java</directory><!--所在的目录-->
+			  <includes><!--包括目录下的.properties,.xml文件都会扫描到-->
+				  <include>**/*.properties</include>
+				  <include>**/*.xml</include>
+			  </includes>
+			  <filtering>false</filtering>
+		  </resource>
+	  </resources>
+
   </build>
 </project>
